@@ -13,9 +13,15 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role{
+enum Role {
   ADMIN
   STATION
+}
+enum ShippingType {
+  RGE
+  RETIRA
+  CORREO
+  EXPRESO
 }
 
 model User {
@@ -45,4 +51,78 @@ model Material{
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+// Nueva Entidad: LOCALIDAD (City)
+model City {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // Ej: "Mar del Plata", "Ayacucho"
+  province  String?  // Opcional, ya que en el Excel actual viene vacío o junto al nombre
+  
+  // Relación: Una localidad puede tener muchos clientes
+  clients   Client[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Nueva Entidad: Comisionista / Transporte (Carrier)
+model Carrier {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique  // Ej: "Bairex", "Mdq - Carlos"
+  contactInfo String?  // Ej: "LLAMAR HASTA LAS 13"
+  phone       String?  // Ej: "155904404"
+  pickupDays  String?  // Ej: "Lunes - Miércoles - Viernes"
+  locations   String?  // Ej: "Tres Arroyos - Bahia Blanca" (Como texto de referencia)
+  arrivalTime String?  // Ej: "15.30"
+  
+  // Relación: Un comisionista puede ser el transporte por defecto de muchos clientes
+  clients     Client[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Nueva Entidad: RUBRO (Category)
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // Ej: "3D", "Agencia", "CARTELERO"
+  
+  // Relación: Un rubro puede tener muchos clientes
+  clients   Client[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client{
+  id Int @id @default(autoincrement())
+  searchName String? // Nombre de Busqueda (Ej: "7 Perros Producciones SRL")
+  code String @unique // Codigo (Ej: "7PE001")
+  name         String   // inau / Razón Social real
+  address      String?  // Direccion
+  
+  cityId       Int?
+  city         City?    @relation(fields: [cityId], references: [id])// Localidad (Ej: "Mar del Plata")
+
+  phone        String?  // Telefono
+  email        String?  // Mail
+  altPhone     String?  // Otro Telefono
+  taxCategory  String?  // Condicion IVA (Ej: "Responsable Inscripto")
+  cuitDni      String?  // CUIT / DNI
+  discount     Float    @default(0) // Descuento (Ej: 0.3 para 30%)
+  shippingType ShippingType?  // Tipo Envio (Ej: "RETIRA")
+
+  carrierId    Int?
+  carrier      Carrier? @relation(fields: [carrierId], references: [id])
+  
+  paymentTerms String?  // Como Paga (Ej: "Siempre Final 10%")
+  notes        String?  // Observaciones
+
+  categoryId   Int?     // El ID del rubro
+  category     Category? @relation(fields: [categoryId], references: [id]) // Rubro (Ej: "GREMIO", "Sublimacion")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Aquí luego irán las relaciones: orders Order[]
 }

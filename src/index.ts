@@ -5,6 +5,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import userRoutes from "./routes/userRoutes";
 import materialRoutes from "./routes/materialRoutes";
+import cityRoutes from "./routes/cityRoutes";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.get("/api", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/materials", materialRoutes);
+app.use("/api/cities", cityRoutes);
 
 // Lógica de WebSockets
 // io.on("connection", (socket) => {
