@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "ERP Gráfica - Backend API",
+    "description": "Colección de endpoints para el backend del sistema ERP Gráfica",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        },
+        "description": "Endpoint de prueba para verificar que el servidor está funcionando"
+      },
+      "response": []
+    },
+    {
+      "name": "Materiales",
+      "item": [
+        {
+          "name": "Obtener todos los materiales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/materials",
+              "host": ["{{base_url}}"],
+              "path": ["materials"]
+            },
+            "description": "Obtiene la lista completa de materiales disponibles en el sistema"
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nuevo material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Papel A4 80gr\",\n  \"description\": \"Papel bond tamaño A4, 80 gramos\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/materials",
+              "host": ["{{base_url}}"],
+              "path": ["materials"]
+            },
+            "description": "Crea un nuevo material en el sistema. El campo 'name' debe ser único."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar material",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Papel A4 90gr\",\n  \"description\": \"Papel bond tamaño A4, 90 gramos\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/materials/:id",
+              "host": ["{{base_url}}"],
+              "path": ["materials", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza un material existente por su ID. El ID debe ser un número válido."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar material",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/materials/:id",
+              "host": ["{{base_url}}"],
+              "path": ["materials", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina un material por su ID. El ID debe ser un número válido."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios y Estaciones",
+      "item": [
+        {
+          "name": "Obtener todas las estaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/stations",
+              "host": ["{{base_url}}"],
+              "path": ["users", "stations"]
+            },
+            "description": "Obtiene la lista de todas las estaciones (usuarios con rol STATION) con sus materiales asignados"
+          },
+          "response": []
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"estacion1\",\n  \"name\": \"Estación de Corte\",\n  \"password\": \"password123\",\n  \"role\": \"STATION\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/create",
+              "host": ["{{base_url}}"],
+              "path": ["users", "create"]
+            },
+            "description": "Crea un nuevo usuario en el sistema. El campo 'username' debe ser único. El rol puede ser ADMIN o STATION."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Autentica un usuario. Para usuarios ADMIN se valida la contraseña, para STATION no se requiere contraseña."
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar material a estación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/:userId/materials",
+              "host": ["{{base_url}}"],
+              "path": ["users", ":userId", "materials"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Asigna un material a una estación (usuario con rol STATION). Ambos IDs deben ser números válidos."
+          },
+          "response": []
+        },
+        {
+          "name": "Remover material de estación",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/:userId/materials",
+              "host": ["{{base_url}}"],
+              "path": ["users", ":userId", "materials"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "materialId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Remueve un material de una estación. Ambos IDs deben ser números válidos. Nota: el materialId también se envía en el body según el controlador."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
