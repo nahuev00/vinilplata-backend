@@ -25,8 +25,9 @@ export const updateCityService = async (
   id: number,
   data: Prisma.CityUpdateInput,
 ): Promise<City> => {
-  return await prisma.city.delete({
+  return await prisma.city.update({
     where: { id },
+    data,
   });
 };
 
