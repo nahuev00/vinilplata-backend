@@ -242,6 +242,228 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Ciudades",
+      "item": [
+        {
+          "name": "Obtener todas las ciudades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": ["{{base_url}}"],
+              "path": ["cities"]
+            },
+            "description": "Obtiene la lista completa de ciudades/localidades disponibles en el sistema, ordenadas alfabéticamente por nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener ciudad por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities/:cityId",
+              "host": ["{{base_url}}"],
+              "path": ["cities", ":cityId"],
+              "variable": [
+                {
+                  "key": "cityId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene una ciudad/localidad específica por su ID. El ID debe ser un número válido."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nueva ciudad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mar del Plata\",\n  \"province\": \"Buenos Aires\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": ["{{base_url}}"],
+              "path": ["cities"]
+            },
+            "description": "Crea una nueva ciudad/localidad en el sistema. El campo 'name' debe ser único. El campo 'province' es opcional."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar ciudad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mar del Plata Actualizado\",\n  \"province\": \"Provincia de Buenos Aires\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cities/:cityId",
+              "host": ["{{base_url}}"],
+              "path": ["cities", ":cityId"],
+              "variable": [
+                {
+                  "key": "cityId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza una ciudad existente por su ID. El ID debe ser un número válido. El campo 'name' debe ser único."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar ciudad",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities/:cityId",
+              "host": ["{{base_url}}"],
+              "path": ["cities", ":cityId"],
+              "variable": [
+                {
+                  "key": "cityId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina una ciudad por su ID. El ID debe ser un número válido. No se puede eliminar si está asignada a algún cliente."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comisionistas",
+      "item": [
+        {
+          "name": "Obtener todos los comisionistas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/carriers",
+              "host": ["{{base_url}}"],
+              "path": ["carriers"]
+            },
+            "description": "Obtiene la lista completa de comisionistas/transportes disponibles en el sistema, ordenados alfabéticamente por nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener comisionista por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/carriers/:carrierId",
+              "host": ["{{base_url}}"],
+              "path": ["carriers", ":carrierId"],
+              "variable": [
+                {
+                  "key": "carrierId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene un comisionista/transporte específico por su ID. El ID debe ser un número válido."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nuevo comisionista",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bairex\",\n  \"contactInfo\": \"LLAMAR HASTA LAS 13\",\n  \"phone\": \"155904404\",\n  \"pickupDays\": \"Lunes - Miércoles - Viernes\",\n  \"locations\": \"Tres Arroyos - Bahia Blanca\",\n  \"arrivalTime\": \"15.30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/carriers",
+              "host": ["{{base_url}}"],
+              "path": ["carriers"]
+            },
+            "description": "Crea un nuevo comisionista/transporte en el sistema. El campo 'name' debe ser único. Todos los demás campos son opcionales."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar comisionista",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bairex Actualizado\",\n  \"contactInfo\": \"LLAMAR HASTA LAS 14\",\n  \"phone\": \"155904405\",\n  \"pickupDays\": \"Martes - Jueves\",\n  \"locations\": \"Tres Arroyos - Bahia Blanca - Necochea\",\n  \"arrivalTime\": \"16.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/carriers/:carrierId",
+              "host": ["{{base_url}}"],
+              "path": ["carriers", ":carrierId"],
+              "variable": [
+                {
+                  "key": "carrierId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza un comisionista existente por su ID. El ID debe ser un número válido. El campo 'name' debe ser único."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar comisionista",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/carriers/:carrierId",
+              "host": ["{{base_url}}"],
+              "path": ["carriers", ":carrierId"],
+              "variable": [
+                {
+                  "key": "carrierId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina un comisionista por su ID. El ID debe ser un número válido. No se puede eliminar si está asignado a algún cliente."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

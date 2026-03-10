@@ -3,9 +3,12 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { Server } from "socket.io";
+
+//----------- ROUTES ------------
 import userRoutes from "./routes/userRoutes";
 import materialRoutes from "./routes/materialRoutes";
 import cityRoutes from "./routes/cityRoutes";
+import carrierRoutes from "./routes/carrierRoute";
 
 dotenv.config();
 
@@ -30,6 +33,7 @@ app.get("/api", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/materials", materialRoutes);
 app.use("/api/cities", cityRoutes);
+app.use("/api/carriers", carrierRoutes);
 
 // Lógica de WebSockets
 // io.on("connection", (socket) => {
