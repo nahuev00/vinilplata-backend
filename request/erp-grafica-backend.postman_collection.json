@@ -230,14 +230,10 @@
                 {
                   "key": "userId",
                   "value": "1"
-                },
-                {
-                  "key": "materialId",
-                  "value": "1"
                 }
               ]
             },
-            "description": "Remueve un material de una estación. Ambos IDs deben ser números válidos. Nota: el materialId también se envía en el body según el controlador."
+            "description": "Remueve un material de una estación. Ambos IDs deben ser números válidos. El materialId se envía en el body."
           },
           "response": []
         }
@@ -460,6 +456,228 @@
               ]
             },
             "description": "Elimina un comisionista por su ID. El ID debe ser un número válido. No se puede eliminar si está asignado a algún cliente."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categorías (Rubros)",
+      "item": [
+        {
+          "name": "Obtener todas las categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "description": "Obtiene la lista completa de categorías (rubros) disponibles en el sistema, ordenadas alfabéticamente por nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener categoría por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/:categoryId",
+              "host": ["{{base_url}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene una categoría (rubro) específica por su ID. El ID debe ser un número válido."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nueva categoría",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"3D\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "description": "Crea una nueva categoría (rubro) en el sistema. El campo 'name' debe ser único."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar categoría",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"3D Actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/categories/:categoryId",
+              "host": ["{{base_url}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza una categoría (rubro) existente por su ID. El ID debe ser un número válido. El campo 'name' debe ser único."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/:categoryId",
+              "host": ["{{base_url}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina una categoría (rubro) por su ID. El ID debe ser un número válido. No se puede eliminar si está asignada a algún cliente."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Obtener todos los clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            },
+            "description": "Obtiene la lista completa de clientes disponibles en el sistema, ordenados alfabéticamente por nombre. Incluye información de categoría, ciudad y comisionista asociados."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener cliente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/:clientId",
+              "host": ["{{base_url}}"],
+              "path": ["clients", ":clientId"],
+              "variable": [
+                {
+                  "key": "clientId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene un cliente específico por su ID. El ID debe ser un número válido. Incluye información de categoría, ciudad y comisionista asociados."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nuevo cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"searchName\": \"7 Perros Producciones SRL\",\n  \"code\": \"7PE001\",\n  \"name\": \"7 Perros Producciones SRL\",\n  \"address\": \"Calle Falsa 123\",\n  \"cityId\": 1,\n  \"phone\": \"2231234567\",\n  \"email\": \"contacto@7perros.com\",\n  \"altPhone\": \"2239876543\",\n  \"taxCategory\": \"Responsable Inscripto\",\n  \"cuitDni\": \"30-12345678-9\",\n  \"discount\": 0.3,\n  \"shippingType\": \"RETIRA\",\n  \"carrierId\": 1,\n  \"paymentTerms\": \"Siempre Final 10%\",\n  \"notes\": \"Cliente preferencial\",\n  \"categoryId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            },
+            "description": "Crea un nuevo cliente en el sistema. El campo 'code' debe ser único. Los campos 'cityId', 'categoryId' y 'carrierId' son opcionales y deben referenciar IDs existentes."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"7 Perros Producciones SRL Actualizado\",\n  \"discount\": 0.25,\n  \"shippingType\": \"RGE\",\n  \"notes\": \"Cliente actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/:clientId",
+              "host": ["{{base_url}}"],
+              "path": ["clients", ":clientId"],
+              "variable": [
+                {
+                  "key": "clientId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza un cliente existente por su ID. El ID debe ser un número válido. Solo se deben enviar los campos que se desean actualizar."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clients/:clientId",
+              "host": ["{{base_url}}"],
+              "path": ["clients", ":clientId"],
+              "variable": [
+                {
+                  "key": "clientId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina un cliente por su ID. El ID debe ser un número válido. No se puede eliminar si tiene órdenes asociadas."
           },
           "response": []
         }
