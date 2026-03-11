@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes";
 import materialRoutes from "./routes/materialRoutes";
 import cityRoutes from "./routes/cityRoutes";
 import carrierRoutes from "./routes/carrierRoute";
+import categoryRoutes from "./routes/categoryRoutes";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/materials", materialRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/carriers", carrierRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Lógica de WebSockets
 // io.on("connection", (socket) => {
