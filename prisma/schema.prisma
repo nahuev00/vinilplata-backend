@@ -24,6 +24,24 @@ enum ShippingType {
   EXPRESO
 }
 
+// Estados de la Orden Completa
+enum OrderStatus {
+  PRESUPUESTADO   // Aún no confirmado
+  EN_PRODUCCION   // En producción
+  TERMINADO       // Listo para retiro o envío
+  ENTREGADO       // Entregado / Despachado
+  CANCELADO       // Cancelado
+}
+
+// Estados del Renglón (Para la pantalla de los maquinistas/estaciones)
+enum ItemStatus {
+  PREIMPRESION    // Diseño / Esperando Prueba
+  EN_COLA         // En cola de máquina
+  IMPRESO         // Impreso (Como en tu Excel)
+  TERMINACIONES   // Trabajo Posterior
+  REALIZADO       // Realizado / Listo (Como en tu Excel)
+}
+
 model User {
   id Int @id @default(autoincrement())
   username String @unique
@@ -31,7 +49,8 @@ model User {
   password String?
   role Role
 
-  //orders Order[]
+  ordersSold          Order[]       @relation("OrderCreatedBy")
+  assignedJobs        OrderItem[]   @relation("ItemAssignedTo")
 
   //Materiales admitidos por cada USER{role:STATION}
   materials Material[]
@@ -48,6 +67,8 @@ model Material{
   description String?
 
   stations User[]
+
+  orderItems OrderItem[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,7 +80,9 @@ model City {
   province  String?  // Opcional, ya que en el Excel actual viene vacío o junto al nombre
   
   // Relación: Una localidad puede tener muchos clientes
-  clients   Client[]
+  clients Client[]
+
+  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -76,7 +99,9 @@ model Carrier {
   arrivalTime String?  // Ej: "15.30"
   
   // Relación: Un comisionista puede ser el transporte por defecto de muchos clientes
-  clients     Client[]
+  clients Client[]
+
+  orders Order[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -125,5 +150,81 @@ model Client{
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Aquí luego irán las relaciones: orders Order[]
+  orders Order[]
+}
+
+//--------------ORDENES---------------
+model Order {
+  id                  Int          @id @default(autoincrement())
+  orderNumber         String       @unique // Ej: "1038" o "ORD-1038"
+  title               String?      // Referencia rápida
+  
+  // Relaciones
+  clientId            Int
+  client              Client       @relation(fields: [clientId], references: [id])
+  
+  sellerId            Int          // Vendedor / Quien tomó el pedido
+  seller              User         @relation("OrderCreatedBy", fields: [sellerId], references: [id])
+  
+  // Logística 
+  shippingType        ShippingType? 
+  carrierId           Int?          
+  carrier             Carrier?     @relation(fields: [carrierId], references: [id])
+  cityId              Int?          
+  city                City?        @relation(fields: [cityId], references: [id])
+  
+  status              OrderStatus  @default(EN_PRODUCCION)
+  promisedDate        String?      // Ej: "Imprimir hoy antes de las 17hs"
+  
+  // Contabilidad 
+  total               Float        @default(0) 
+  electronicPayment   Float        @default(0) // Transferencias / MP
+  cashPayment         Float        @default(0) // Efectivo
+  invoiceType         String?      // Ej: "A", "B", "X"
+  invoiceNumber       String?      // Ej: "X-0001-00015732"
+  
+  notes               String?      // Observaciones generales
+  
+  items               OrderItem[]  
+  
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+model OrderItem {
+  id                  Int          @id @default(autoincrement())
+  
+  orderId             Int
+  order               Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Asignación de Trabajo (Puede ser un Operador Humano o una Estación como "GZ_180")
+  assignedToId        Int?         
+  assignedTo          User?        @relation("ItemAssignedTo", fields: [assignedToId], references: [id])
+  
+  materialId          Int
+  material            Material     @relation(fields: [materialId], references: [id])
+  
+  fileName            String?      // Ej: "proyecto vinilplata A 3540x870.jpg"
+  
+  // Dimensiones en Milímetros
+  widthMm             Int          // Ancho
+  heightMm            Int          // Largo
+  copies              Int          @default(1) // Cantidad
+  
+  // Resultados calculados 
+  areaM2              Float        // (widthMm * heightMm / 1000000) * copies
+  linearMeters        Float?       
+  
+  finishing           String?      // Trabajo Posterior (Ej: "Pelar y transfer")
+  notes               String?      // Observaciones (Ej: "seteo M al 75%")
+  
+  // Precios
+  unitPrice           Float        // Valor por unidad
+  subtotal            Float        
+  
+  status              ItemStatus   @default(PREIMPRESION)
+  proofApproved       Boolean      @default(false) // ¿Prueba aprobada?
+  
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 }

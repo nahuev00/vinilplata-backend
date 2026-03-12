@@ -1,10 +1,18 @@
 import { Request, Response } from "express";
 import * as clientService from "../services/clientService";
 
-export const getClients = async (_req: Request, res: Response) => {
+export const getClients = async (req: Request, res: Response) => {
   try {
-    const clients = await clientService.getAllClientsService();
-    res.json(clients);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const search = req.query.search as string | undefined;
+
+    const result = await clientService.getClientsPaginatedService(
+      page,
+      limit,
+      search,
+    );
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener los clientes" });
   }

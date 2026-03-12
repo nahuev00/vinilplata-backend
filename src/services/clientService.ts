@@ -1,6 +1,50 @@
 import prisma from "../config/db";
 import { Prisma, Client } from "../generated/prisma/client";
 
+export const getClientsPaginatedService = async (
+  page: number = 1,
+  limit: number = 50,
+  search?: string,
+) => {
+  const skip = (page - 1) * limit;
+
+  const whereCondition: Prisma.ClientWhereInput = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { code: { contains: search, mode: "insensitive" } },
+          { searchName: { contains: search, mode: "insensitive" } },
+          { cuitDni: { contains: search, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
+  const [total, clients] = await prisma.$transaction([
+    prisma.client.count({ where: whereCondition }),
+    prisma.client.findMany({
+      where: whereCondition,
+      skip,
+      take: limit,
+      orderBy: { name: "asc" },
+      include: {
+        category: true,
+        city: true,
+        carrier: true,
+      },
+    }),
+  ]);
+
+  return {
+    data: clients,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
 export const getAllClientsService = async (): Promise<Client[]> => {
   return await prisma.client.findMany({
     orderBy: { name: "asc" },

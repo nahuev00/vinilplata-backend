@@ -12,6 +12,8 @@ import cityRoutes from "./routes/cityRoutes";
 import carrierRoutes from "./routes/carrierRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import clientRoutes from "./routes/clientRoutes";
+import orderRoutes from "./routes/orderRoutes";
+import orderItemRoutes from "./routes/orderItemRoutes";
 
 dotenv.config();
 
@@ -41,6 +43,8 @@ app.use("/api/cities", cityRoutes);
 app.use("/api/carriers", carrierRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/order-items", orderItemRoutes);
 
 // Lógica de WebSockets
 // io.on("connection", (socket) => {

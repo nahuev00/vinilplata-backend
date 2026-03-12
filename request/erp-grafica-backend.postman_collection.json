@@ -682,6 +682,85 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Órdenes",
+      "item": [
+        {
+          "name": "Obtener todas las órdenes (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders?page=1&limit=50&search=",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (por defecto: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Cantidad de registros por página (por defecto: 50)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Búsqueda por número de orden, título o nombre del cliente"
+                }
+              ]
+            },
+            "description": "Obtiene la lista paginada de órdenes. Permite búsqueda por número de orden, título o nombre del cliente. Devuelve datos con metadatos de paginación."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener orden por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/:orderId",
+              "host": ["{{base_url}}"],
+              "path": ["orders", ":orderId"],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene una orden específica por su ID. Incluye información completa del cliente, vendedor, comisionista, ciudad e ítems con sus materiales y asignaciones."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear nueva orden",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": 1,\n  \"sellerId\": 1,\n  \"title\": \"Impresión de banners\",\n  \"shippingType\": \"RETIRA\",\n  \"carrierId\": 1,\n  \"cityId\": 1,\n  \"promisedDate\": \"2026-03-20\",\n  \"total\": 15000,\n  \"electronicPayment\": 10000,\n  \"cashPayment\": 5000,\n  \"invoiceType\": \"A\",\n  \"notes\": \"Entregar antes del mediodía\",\n  \"items\": [\n    {\n      \"materialId\": 1,\n      \"assignedToId\": 1,\n      \"fileName\": \"banner_promocion.pdf\",\n      \"widthMm\": 1000,\n      \"heightMm\": 500,\n      \"copies\": 2,\n      \"finishing\": \"Laminado mate\",\n      \"notes\": \"Sin ojetillos\",\n      \"unitPrice\": 5000,\n      \"subtotal\": 10000\n    },\n    {\n      \"materialId\": 2,\n      \"fileName\": \"cartel_promo.ai\",\n      \"widthMm\": 800,\n      \"heightMm\": 600,\n      \"copies\": 1,\n      \"finishing\": \"Corte a medida\",\n      \"unitPrice\": 5000,\n      \"subtotal\": 5000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Crea una nueva orden con sus ítems. El número de orden se genera automáticamente (ORD-YYYY-NNNN). El área M2 de cada ítem se calcula automáticamente. Estado inicial: PRODUCTION. Los campos requeridos son: clientId, sellerId, total e items con materialId, widthMm, heightMm, unitPrice y subtotal."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
