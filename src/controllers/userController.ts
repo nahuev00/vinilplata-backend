@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as userService from "../services/userServices";
+import { Prisma, Role } from "../generated/prisma/client";
 
 export const getStations = async (_req: Request, res: Response) => {
   try {
@@ -12,12 +13,59 @@ export const getStations = async (_req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const newUser = await userService.createUserService(req.body);
-    res.status(201).json(newUser);
+    // 1. Extraemos lo que manda el frontend
+    const { name, username, password, materialIds } = req.body;
+
+    // 2. Traducimos al tipo Prisma.UserCreateInput
+    const prismaInput: Prisma.UserCreateInput = {
+      name,
+      username,
+      password,
+      role: Role.STATION,
+      // Usamos 'connect' para vincular los materiales existentes en la BD
+      materials:
+        materialIds && materialIds.length > 0
+          ? {
+              connect: materialIds.map((id: number) => ({ id })),
+            }
+          : undefined,
+    };
+
+    // 3. Llamamos al servicio
+    const newStation = await userService.createUserService(prismaInput);
+    res.status(201).json(newStation);
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "Error al crear el usuario. Verifica los datos." });
+    console.error(error);
+    res.status(500).json({ error: "Error al crear la estación" });
+  }
+};
+
+export const updateStation = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { name, username, password, materialIds } = req.body;
+
+    // 2. Traducimos al tipo Prisma.UserUpdateInput
+    const prismaInput: Prisma.UserUpdateInput = {
+      name,
+      username,
+      password,
+      // Usamos 'set' para borrar la lista anterior y clavar la nueva directamente
+      materials: materialIds
+        ? {
+            set: materialIds.map((id: number) => ({ id })),
+          }
+        : undefined,
+    };
+
+    const updatedStation = await userService.updateUserService(
+      Number(userId),
+      prismaInput,
+    );
+    res.json(updatedStation);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al actualizar la estación" });
   }
 };
 

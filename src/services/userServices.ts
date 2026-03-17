@@ -15,10 +15,35 @@ export const createUserService = async (data: Prisma.UserCreateInput) => {
       name: data.name,
       password: data.password || null,
       role: data.role || Role.STATION,
+      materials: data.materials,
+    },
+    include: {
+      materials: true,
     },
   });
 
   const { password: _, ...safeUser } = newUSer;
+  return safeUser;
+};
+
+export const updateUserService = async (
+  id: number,
+  data: Prisma.UserUpdateInput,
+) => {
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: {
+      name: data.name,
+      username: data.username,
+      ...(data.password ? { password: data.password } : {}),
+      materials: data.materials, // <-- Aquí insertaremos la relación con 'set'
+    },
+    include: {
+      materials: true,
+    },
+  });
+
+  const { password: _, ...safeUser } = updatedUser;
   return safeUser;
 };
 
