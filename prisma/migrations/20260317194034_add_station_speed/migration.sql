@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "printSpeedPerHour" DOUBLE PRECISION DEFAULT 10.0;

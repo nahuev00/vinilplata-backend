@@ -41,15 +41,18 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const updateStation = async (req: Request, res: Response) => {
+  console.log(req.body);
   try {
     const { userId } = req.params;
-    const { name, username, password, materialIds } = req.body;
+    const { name, username, password, materialIds, printSpeedPerHour } =
+      req.body;
 
     // 2. Traducimos al tipo Prisma.UserUpdateInput
     const prismaInput: Prisma.UserUpdateInput = {
       name,
       username,
       password,
+      printSpeedPerHour,
       // Usamos 'set' para borrar la lista anterior y clavar la nueva directamente
       materials: materialIds
         ? {
@@ -126,5 +129,17 @@ export const removeMaterial = async (req: Request, res: Response) => {
     res
       .status(400)
       .json({ error: "Error al remover el material de la estación" });
+  }
+};
+
+export const getStationsWorkload = async (req: Request, res: Response) => {
+  try {
+    const workload = await userService.getStationsWorkloadService();
+    res.json(workload);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Error al calcular la carga de las estaciones" });
   }
 };

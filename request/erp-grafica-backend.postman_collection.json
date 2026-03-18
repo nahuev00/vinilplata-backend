@@ -761,6 +761,96 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Ítems de Producción (Order Items)",
+      "item": [
+        {
+          "name": "Obtener todos los ítems (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/order-items?page=1&limit=50&assignedToId=&status=",
+              "host": ["{{base_url}}"],
+              "path": ["order-items"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página (por defecto: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Cantidad de registros por página (por defecto: 50)"
+                },
+                {
+                  "key": "assignedToId",
+                  "value": "",
+                  "description": "Filtrar por ID de estación/máquina asignada (opcional)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filtrar por estado: EN_COLA, IMPRIMIENDO, IMPRESO, TERMINADO (opcional)"
+                }
+              ]
+            },
+            "description": "Obtiene la lista paginada de ítems de producción. Ideal para la pantalla de cada máquina filtrando por assignedToId. Los ítems se ordenan por fecha de creación (FIFO - los más antiguos primero)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener ítem por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/order-items/:orderItemId",
+              "host": ["{{base_url}}"],
+              "path": ["order-items", ":orderItemId"],
+              "variable": [
+                {
+                  "key": "orderItemId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Obtiene un ítem de producción específico por su ID. Incluye información completa de la orden, material y estación asignada."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar ítem",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedToId\": 4,\n  \"status\": \"IMPRESO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/order-items/:orderItemId",
+              "host": ["{{base_url}}"],
+              "path": ["order-items", ":orderItemId"],
+              "variable": [
+                {
+                  "key": "orderItemId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Actualiza un ítem de producción. Permite reasignar a otra máquina (assignedToId) o cambiar el estado (status). También permite actualizar medidas (widthMm, heightMm), copias, acabado (finishing) y notas. Si se modifican medidas o copias, el área M2 se recalcula automáticamente."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

@@ -40,6 +40,7 @@ export const getClientById = async (req: Request, res: Response) => {
 
 export const createClient = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     // req.body ahora puede recibir { name: "...", code: "...", categoryId: 1, shippingType: "RETIRA" }
     const client = await clientService.createClientService(req.body);
     res.status(201).json(client);

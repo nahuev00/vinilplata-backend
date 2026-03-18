@@ -1,10 +1,16 @@
 import prisma from "../config/db";
-import { Prisma, Role } from "../generated/prisma/client";
+import { Prisma, Role, ItemStatus } from "../generated/prisma/client";
 
 export const getStationsService = async () => {
   return await prisma.user.findMany({
     where: { role: Role.STATION },
-    select: { id: true, name: true, username: true, materials: true },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      materials: true,
+      printSpeedPerHour: true,
+    },
   });
 };
 
@@ -16,11 +22,13 @@ export const createUserService = async (data: Prisma.UserCreateInput) => {
       password: data.password || null,
       role: data.role || Role.STATION,
       materials: data.materials,
+      printSpeedPerHour: data.printSpeedPerHour,
     },
     include: {
       materials: true,
     },
   });
+  console.log(data);
 
   const { password: _, ...safeUser } = newUSer;
   return safeUser;
@@ -30,6 +38,7 @@ export const updateUserService = async (
   id: number,
   data: Prisma.UserUpdateInput,
 ) => {
+  console.log(data);
   const updatedUser = await prisma.user.update({
     where: { id },
     data: {
@@ -37,6 +46,7 @@ export const updateUserService = async (
       username: data.username,
       ...(data.password ? { password: data.password } : {}),
       materials: data.materials, // <-- Aquí insertaremos la relación con 'set'
+      printSpeedPerHour: data.printSpeedPerHour,
     },
     include: {
       materials: true,
@@ -99,4 +109,51 @@ export const removeMaterialFromStationService = async (
     },
     include: { materials: true },
   });
+};
+
+export const getStationsWorkloadService = async () => {
+  // 1. Buscamos las estaciones y sus trabajos PENDIENTES
+  const stations = await prisma.user.findMany({
+    where: { role: Role.STATION },
+    include: {
+      assignedJobs: {
+        where: {
+          status: {
+            in: [
+              ItemStatus.PREIMPRESION,
+              ItemStatus.EN_COLA,
+              ItemStatus.IMPRESO,
+            ],
+          },
+        },
+      },
+    },
+  });
+
+  // 2. Procesamos la matemática basada en METROS LINEALES
+  const workload = stations.map((station) => {
+    // 👇 CAMBIO CLAVE: Ahora sumamos item.linearMeters
+    const totalPendingLinearMeters = station.assignedJobs.reduce(
+      (sum, item) => sum + (item.linearMeters || 0),
+      0,
+    );
+    const totalItems = station.assignedJobs.length;
+
+    // Velocidad de la máquina en Metros Lineales / Hora
+    const speed = station.printSpeedPerHour || 1;
+
+    // Horas estimadas de trabajo continuo
+    const estimatedHours = totalPendingLinearMeters / speed;
+
+    return {
+      id: station.id,
+      name: station.name,
+      printSpeedPerHour: station.printSpeedPerHour, // ML/h
+      pendingItemsCount: totalItems,
+      pendingLinearMeters: Number(totalPendingLinearMeters.toFixed(2)), // 👇 Enviamos los metros lineales
+      estimatedHours: Number(estimatedHours.toFixed(1)), // Ej: 4.5 horas
+    };
+  });
+
+  return workload;
 };

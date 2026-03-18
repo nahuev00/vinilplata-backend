@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as orderService from "../services/orderService";
+import prisma from "../config/db";
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -46,5 +47,23 @@ export const getOrderById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error al obtener la orden:", error);
     res.status(500).json({ error: "Error al obtener la orden" });
+  }
+};
+
+export const updateOrderItem = async (req: Request, res: Response) => {
+  try {
+    const { itemId } = req.params;
+    const { assignedToId, status } = req.body;
+
+    const updatedItem = await prisma.orderItem.update({
+      where: { id: Number(itemId) },
+      data: {
+        assignedToId: assignedToId !== undefined ? assignedToId : undefined,
+        status: status !== undefined ? status : undefined,
+      },
+    });
+    res.json(updatedItem);
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar el ítem" });
   }
 };

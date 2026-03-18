@@ -37,6 +37,7 @@ enum OrderStatus {
 enum ItemStatus {
   PREIMPRESION    // Diseño / Esperando Prueba
   EN_COLA         // En cola de máquina
+  IMPRIMIENDO
   IMPRESO         // Impreso (Como en tu Excel)
   TERMINACIONES   // Trabajo Posterior
   REALIZADO       // Realizado / Listo (Como en tu Excel)
@@ -51,6 +52,8 @@ model User {
 
   ordersSold          Order[]       @relation("OrderCreatedBy")
   assignedJobs        OrderItem[]   @relation("ItemAssignedTo")
+
+  printSpeedPerHour Float? @default(10.0)
 
   //Materiales admitidos por cada USER{role:STATION}
   materials Material[]
