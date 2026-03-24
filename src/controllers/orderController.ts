@@ -50,6 +50,23 @@ export const getOrderById = async (req: Request, res: Response) => {
   }
 };
 
+export const updateOrder = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const updateData = req.body; // Aquí puede venir { status: "TERMINADO" }
+
+    const updatedOrder = await orderService.updateOrderService(
+      Number(orderId),
+      updateData,
+    );
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error("Error al actualizar la orden:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
 export const updateOrderItem = async (req: Request, res: Response) => {
   try {
     const { itemId } = req.params;

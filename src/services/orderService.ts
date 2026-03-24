@@ -29,6 +29,20 @@ export interface CreateOrderDTO {
   }[];
 }
 
+export interface UpdateOrderDTO {
+  title?: string;
+  shippingType?: any;
+  carrierId?: number;
+  cityId?: number;
+  promisedDate?: string;
+  total?: number;
+  electronicPayment?: number;
+  cashPayment?: number;
+  invoiceType?: string;
+  notes?: string;
+  status?: OrderStatus;
+}
+
 export const createOrderService = async (data: CreateOrderDTO) => {
   // 1. Generar Número de Orden (Ej: ORD-2026-0001)
   const currentYear = new Date().getFullYear();
@@ -76,6 +90,31 @@ export const createOrderService = async (data: CreateOrderDTO) => {
       items: {
         include: { material: true, assignedTo: true },
       },
+    },
+  });
+};
+
+export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
+  return await prisma.order.update({
+    where: { id },
+    data: {
+      title: data.title,
+      shippingType: data.shippingType,
+      carrierId: data.carrierId,
+      cityId: data.cityId,
+      promisedDate: data.promisedDate,
+      total: data.total,
+      electronicPayment: data.electronicPayment,
+      cashPayment: data.cashPayment,
+      invoiceType: data.invoiceType,
+      notes: data.notes,
+      status: data.status,
+    },
+    // Devolvemos la orden actualizada con sus relaciones básicas para que el frontend
+    // refresque la información sin necesidad de hacer otra llamada extra.
+    include: {
+      client: { select: { name: true, code: true } },
+      seller: { select: { id: true, name: true } },
     },
   });
 };

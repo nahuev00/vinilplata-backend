@@ -3,13 +3,19 @@ import { Prisma, Role, ItemStatus } from "../generated/prisma/client";
 
 export const getStationsService = async () => {
   return await prisma.user.findMany({
-    where: { role: Role.STATION },
+    where: {
+      role: {
+        in: [Role.STATION, Role.PACKAGER, Role.SHIPPER],
+      },
+    },
     select: {
       id: true,
       name: true,
       username: true,
       materials: true,
+      role: true,
       printSpeedPerHour: true,
+      isFinishingStation: true,
     },
   });
 };
@@ -23,6 +29,7 @@ export const createUserService = async (data: Prisma.UserCreateInput) => {
       role: data.role || Role.STATION,
       materials: data.materials,
       printSpeedPerHour: data.printSpeedPerHour,
+      isFinishingStation: data.isFinishingStation,
     },
     include: {
       materials: true,
@@ -47,6 +54,7 @@ export const updateUserService = async (
       ...(data.password ? { password: data.password } : {}),
       materials: data.materials, // <-- Aquí insertaremos la relación con 'set'
       printSpeedPerHour: data.printSpeedPerHour,
+      isFinishingStation: data.isFinishingStation,
     },
     include: {
       materials: true,

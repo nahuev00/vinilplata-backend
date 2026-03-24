@@ -14,13 +14,22 @@ export const getStations = async (_req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   try {
     // 1. Extraemos lo que manda el frontend
-    const { name, username, password, materialIds } = req.body;
+    const {
+      name,
+      username,
+      password,
+      materialIds,
+      printSpeedPerHour,
+      isFinishingStation,
+    } = req.body;
 
     // 2. Traducimos al tipo Prisma.UserCreateInput
     const prismaInput: Prisma.UserCreateInput = {
       name,
       username,
       password,
+      printSpeedPerHour,
+      isFinishingStation,
       role: Role.STATION,
       // Usamos 'connect' para vincular los materiales existentes en la BD
       materials:
@@ -41,11 +50,17 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const updateStation = async (req: Request, res: Response) => {
-  console.log(req.body);
   try {
     const { userId } = req.params;
-    const { name, username, password, materialIds, printSpeedPerHour } =
-      req.body;
+
+    const {
+      name,
+      username,
+      password,
+      materialIds,
+      printSpeedPerHour,
+      isFinishingStation,
+    } = req.body;
 
     // 2. Traducimos al tipo Prisma.UserUpdateInput
     const prismaInput: Prisma.UserUpdateInput = {
@@ -53,6 +68,7 @@ export const updateStation = async (req: Request, res: Response) => {
       username,
       password,
       printSpeedPerHour,
+      isFinishingStation,
       // Usamos 'set' para borrar la lista anterior y clavar la nueva directamente
       materials: materialIds
         ? {
