@@ -44,6 +44,7 @@ export interface UpdateOrderDTO {
 }
 
 export const createOrderService = async (data: CreateOrderDTO) => {
+  console.log(data);
   // 1. Generar Número de Orden (Ej: ORD-2026-0001)
   const currentYear = new Date().getFullYear();
   const orderCount = await prisma.order.count();
@@ -70,7 +71,7 @@ export const createOrderService = async (data: CreateOrderDTO) => {
       clientId: data.clientId,
       sellerId: data.sellerId,
       title: data.title,
-      shippingType: data.shippingType,
+      shippingType: data.shippingType === "" ? undefined : data.shippingType,
       carrierId: data.carrierId,
       cityId: data.cityId,
       promisedDate: data.promisedDate,
@@ -144,7 +145,9 @@ export const getOrdersPaginatedService = async (
       take: limit,
       orderBy: { createdAt: "desc" }, // Las más nuevas primero
       include: {
-        client: { select: { name: true, code: true } }, // Solo traemos lo necesario del cliente
+        client: true, // Solo traemos lo necesario del cliente
+        carrier: true,
+        city: true,
         seller: { select: { name: true } },
         items: true, // Traemos un resumen de los ítems
       },
