@@ -29,7 +29,14 @@ const server = http.createServer(app);
 //   },
 // });
 
-app.use(cors());
+const corsOptions = {
+  // Allow your specific Pinggy frontend URL
+  origin: "https://rjhht-181-116-45-158.a.free.pinggy.link",
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 //TEST ENDPOINT

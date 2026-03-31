@@ -39,6 +39,8 @@ export interface UpdateOrderDTO {
   electronicPayment?: number;
   cashPayment?: number;
   invoiceType?: string;
+  invoiceNumber?: string | null;
+  isPaid?: boolean;
   notes?: string;
   status?: OrderStatus;
 }
@@ -74,7 +76,7 @@ export const createOrderService = async (data: CreateOrderDTO) => {
       shippingType: data.shippingType === "" ? undefined : data.shippingType,
       carrierId: data.carrierId,
       cityId: data.cityId,
-      promisedDate: data.promisedDate,
+      promisedDate: data.promisedDate ? new Date(data.promisedDate) : undefined,
       total: data.total,
       electronicPayment: data.electronicPayment || 0,
       cashPayment: data.cashPayment || 0,
@@ -96,26 +98,61 @@ export const createOrderService = async (data: CreateOrderDTO) => {
 };
 
 export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
+  // 👇 NUEVO: VALIDACIÓN ESTRICTA DE CANCELACIÓN 👇
+  if (data.status === OrderStatus.CANCELADO) {
+    // Buscamos cómo están los ítems AHORA MISMO en la base de datos
+    const currentOrder = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    const hasPrintingItems = currentOrder?.items.some(
+      (item) => item.status === ItemStatus.IMPRIMIENDO,
+    );
+
+    if (hasPrintingItems) {
+      throw new Error(
+        "ACCION_DENEGADA: Hay ítems imprimiéndose. Detenga la máquina primero.",
+      );
+    }
+  }
+
+  // Preparamos el payload base
+  const updatePayload: Prisma.OrderUncheckedUpdateInput = {
+    title: data.title === "" ? null : data.title,
+    shippingType: data.shippingType === ("" as any) ? null : data.shippingType,
+    carrierId: data.carrierId,
+    cityId: data.cityId,
+    promisedDate: data.promisedDate ? new Date(data.promisedDate) : null,
+    total: data.total,
+    electronicPayment: data.electronicPayment,
+    cashPayment: data.cashPayment,
+    invoiceType: data.invoiceType === "" ? null : data.invoiceType,
+    notes: data.notes === "" ? null : data.notes,
+    invoiceNumber: data.invoiceNumber === "" ? null : data.invoiceNumber,
+    isPaid: data.isPaid,
+    status: data.status,
+  };
+
+  // Lógica de cascada
+  if (data.status === OrderStatus.ENTREGADO) {
+    updatePayload.items = {
+      updateMany: { where: {}, data: { status: ItemStatus.ENTREGADO } },
+    };
+  } else if (data.status === OrderStatus.CANCELADO) {
+    updatePayload.items = {
+      updateMany: { where: {}, data: { status: ItemStatus.CANCELADO } },
+    };
+  }
+
+  // Ejecutamos la actualización
   return await prisma.order.update({
     where: { id },
-    data: {
-      title: data.title,
-      shippingType: data.shippingType,
-      carrierId: data.carrierId,
-      cityId: data.cityId,
-      promisedDate: data.promisedDate,
-      total: data.total,
-      electronicPayment: data.electronicPayment,
-      cashPayment: data.cashPayment,
-      invoiceType: data.invoiceType,
-      notes: data.notes,
-      status: data.status,
-    },
-    // Devolvemos la orden actualizada con sus relaciones básicas para que el frontend
-    // refresque la información sin necesidad de hacer otra llamada extra.
+    data: updatePayload,
     include: {
       client: { select: { name: true, code: true } },
       seller: { select: { id: true, name: true } },
+      items: { include: { material: true } },
     },
   });
 };

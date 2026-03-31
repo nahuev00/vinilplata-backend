@@ -39,6 +39,8 @@ enum ItemStatus {
   TERMINACIONES   // Trabajo Posterior
   REALIZADO       // Realizado / Listo (Como en tu Excel)
   EMPAQUETADO
+  ENTREGADO
+  CANCELADO
 }
 
 model User {
@@ -179,14 +181,16 @@ model Order {
   city                City?        @relation(fields: [cityId], references: [id])
   
   status              OrderStatus  @default(EN_PRODUCCION)
-  promisedDate        String?      // Ej: "Imprimir hoy antes de las 17hs"
+  promisedDate        DateTime?      // Ej: "Imprimir hoy antes de las 17hs"
   
   // Contabilidad 
   total               Float        @default(0) 
   electronicPayment   Float        @default(0) // Transferencias / MP
   cashPayment         Float        @default(0) // Efectivo
   invoiceType         String?      // Ej: "A", "B", "X"
+
   invoiceNumber       String?      // Ej: "X-0001-00015732"
+  isPaid              Boolean   @default(false)
   
   notes               String?      // Observaciones generales
   
