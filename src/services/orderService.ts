@@ -1,7 +1,7 @@
 import prisma from "../config/db";
 import { Prisma, OrderStatus, ItemStatus } from "../generated/prisma/client";
 
-// Interfaz para definir cómo esperamos recibir los datos desde el frontend
+// Interfaz para definir cómo esperamos recibir los datos desde el frontend al crear
 export interface CreateOrderDTO {
   clientId: number;
   sellerId: number;
@@ -14,6 +14,8 @@ export interface CreateOrderDTO {
   electronicPayment?: number;
   cashPayment?: number;
   invoiceType?: string;
+  invoiceNumber?: string | null;
+  isPaid?: boolean;
   notes?: string;
   items: {
     materialId: number;
@@ -29,6 +31,22 @@ export interface CreateOrderDTO {
   }[];
 }
 
+// 👇 NUEVO: Interfaz para los ítems al actualizar (Upsert) 👇
+export interface UpdateOrderItemDTO {
+  id?: number; // Opcional: Si viene, se actualiza. Si no, se crea.
+  materialId: number;
+  fileName?: string | null;
+  widthMm: number;
+  heightMm: number;
+  copies: number;
+  finishing?: string | null;
+  notes?: string | null;
+  unitPrice: number;
+  subtotal: number;
+  areaM2: number;
+}
+
+// Interfaz para actualizar la orden
 export interface UpdateOrderDTO {
   title?: string;
   shippingType?: any;
@@ -43,10 +61,10 @@ export interface UpdateOrderDTO {
   isPaid?: boolean;
   notes?: string;
   status?: OrderStatus;
+  items?: UpdateOrderItemDTO[]; // 👇 Agregamos los ítems aquí
 }
 
 export const createOrderService = async (data: CreateOrderDTO) => {
-  console.log(data);
   // 1. Generar Número de Orden (Ej: ORD-2026-0001)
   const currentYear = new Date().getFullYear();
   const orderCount = await prisma.order.count();
@@ -81,6 +99,8 @@ export const createOrderService = async (data: CreateOrderDTO) => {
       electronicPayment: data.electronicPayment || 0,
       cashPayment: data.cashPayment || 0,
       invoiceType: data.invoiceType,
+      invoiceNumber: data.invoiceNumber,
+      isPaid: data.isPaid,
       notes: data.notes,
       status: OrderStatus.EN_PRODUCCION, // Ingresa directo a producción
       items: {
@@ -98,7 +118,7 @@ export const createOrderService = async (data: CreateOrderDTO) => {
 };
 
 export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
-  // 👇 NUEVO: VALIDACIÓN ESTRICTA DE CANCELACIÓN 👇
+  // VALIDACIÓN ESTRICTA DE CANCELACIÓN
   if (data.status === OrderStatus.CANCELADO) {
     // Buscamos cómo están los ítems AHORA MISMO en la base de datos
     const currentOrder = await prisma.order.findUnique({
@@ -134,7 +154,7 @@ export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
     status: data.status,
   };
 
-  // Lógica de cascada
+  // 👇 LÓGICA DE CASCADA Y UPSERT DE ÍTEMS 👇
   if (data.status === OrderStatus.ENTREGADO) {
     updatePayload.items = {
       updateMany: { where: {}, data: { status: ItemStatus.ENTREGADO } },
@@ -142,6 +162,34 @@ export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
   } else if (data.status === OrderStatus.CANCELADO) {
     updatePayload.items = {
       updateMany: { where: {}, data: { status: ItemStatus.CANCELADO } },
+    };
+  } else if (data.items) {
+    // Si la orden NO se canceló/entregó y el frontend nos mandó el array de ítems (Modo Edición)
+
+    // 1. Identificamos qué IDs nos llegaron desde el frontend
+    const incomingIds = data.items
+      .map((i) => i.id)
+      .filter((id) => id != null) as number[];
+
+    // 2. Separamos los que son nuevos (no tienen ID) y les seteamos estado inicial
+    const itemsToCreate = data.items
+      .filter((i) => !i.id)
+      .map((i) => ({ ...i, id: undefined, status: ItemStatus.PREIMPRESION }));
+
+    // 3. Separamos los que ya existían y preparamos su actualización
+    const itemsToUpdate = data.items
+      .filter((i) => i.id)
+      .map((i) => ({
+        where: { id: i.id },
+        data: { ...i, id: undefined }, // Quitamos el ID del data para que Prisma no se queje
+      }));
+
+    // 4. Armamos el bloque mágico de Prisma
+    updatePayload.items = {
+      // Si un ítem estaba en la BD pero ya no vino en el request, lo borramos
+      deleteMany: { id: { notIn: incomingIds } },
+      create: itemsToCreate,
+      update: itemsToUpdate,
     };
   }
 
@@ -186,7 +234,11 @@ export const getOrdersPaginatedService = async (
         carrier: true,
         city: true,
         seller: { select: { name: true } },
-        items: true, // Traemos un resumen de los ítems
+        items: {
+          include: {
+            assignedTo: { select: { id: true, name: true } },
+          },
+        }, // Traemos un resumen de los ítems
       },
     }),
   ]);
