@@ -13,7 +13,7 @@ export interface CreateOrderDTO {
   total: number;
   electronicPayment?: number;
   cashPayment?: number;
-  invoiceType?: string;
+  invoiceTypeId?: number | null; // 👇 CAMBIO: Ahora es el ID relacional
   invoiceNumber?: string | null;
   isPaid?: boolean;
   notes?: string;
@@ -31,7 +31,7 @@ export interface CreateOrderDTO {
   }[];
 }
 
-// 👇 NUEVO: Interfaz para los ítems al actualizar (Upsert) 👇
+// Interfaz para los ítems al actualizar (Upsert)
 export interface UpdateOrderItemDTO {
   id?: number; // Opcional: Si viene, se actualiza. Si no, se crea.
   materialId: number;
@@ -56,12 +56,12 @@ export interface UpdateOrderDTO {
   total?: number;
   electronicPayment?: number;
   cashPayment?: number;
-  invoiceType?: string;
+  invoiceTypeId?: number | null; // 👇 CAMBIO: Ahora es el ID relacional
   invoiceNumber?: string | null;
   isPaid?: boolean;
   notes?: string;
   status?: OrderStatus;
-  items?: UpdateOrderItemDTO[]; // 👇 Agregamos los ítems aquí
+  items?: UpdateOrderItemDTO[];
 }
 
 export const createOrderService = async (data: CreateOrderDTO) => {
@@ -98,7 +98,7 @@ export const createOrderService = async (data: CreateOrderDTO) => {
       total: data.total,
       electronicPayment: data.electronicPayment || 0,
       cashPayment: data.cashPayment || 0,
-      invoiceType: data.invoiceType,
+      invoiceTypeId: data.invoiceTypeId, // 👇 CAMBIADO AQUÍ
       invoiceNumber: data.invoiceNumber,
       isPaid: data.isPaid,
       notes: data.notes,
@@ -110,6 +110,7 @@ export const createOrderService = async (data: CreateOrderDTO) => {
     // Incluimos las relaciones para devolver la orden completa al frontend
     include: {
       client: true,
+      invoiceType: true, // 👇 INCLUIMOS LA RELACIÓN PARA OBTENER EL NOMBRE
       items: {
         include: { material: true, assignedTo: true },
       },
@@ -147,14 +148,14 @@ export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
     total: data.total,
     electronicPayment: data.electronicPayment,
     cashPayment: data.cashPayment,
-    invoiceType: data.invoiceType === "" ? null : data.invoiceType,
+    invoiceTypeId: data.invoiceTypeId, // 👇 CAMBIADO AQUÍ
     notes: data.notes === "" ? null : data.notes,
     invoiceNumber: data.invoiceNumber === "" ? null : data.invoiceNumber,
     isPaid: data.isPaid,
     status: data.status,
   };
 
-  // 👇 LÓGICA DE CASCADA Y UPSERT DE ÍTEMS 👇
+  // LÓGICA DE CASCADA Y UPSERT DE ÍTEMS
   if (data.status === OrderStatus.ENTREGADO) {
     updatePayload.items = {
       updateMany: { where: {}, data: { status: ItemStatus.ENTREGADO } },
@@ -200,6 +201,7 @@ export const updateOrderService = async (id: number, data: UpdateOrderDTO) => {
     include: {
       client: { select: { name: true, code: true } },
       seller: { select: { id: true, name: true } },
+      invoiceType: true, // 👇 INCLUIMOS LA RELACIÓN
       items: { include: { material: true } },
     },
   });
@@ -233,6 +235,7 @@ export const getOrdersPaginatedService = async (
         client: true, // Solo traemos lo necesario del cliente
         carrier: true,
         city: true,
+        invoiceType: true, // 👇 INCLUIMOS LA RELACIÓN
         seller: { select: { name: true } },
         items: {
           include: {
@@ -257,6 +260,7 @@ export const getOrderByIdService = async (id: number) => {
       seller: { select: { id: true, name: true } },
       carrier: true,
       city: true,
+      invoiceType: true, // 👇 INCLUIMOS LA RELACIÓN
       items: {
         include: {
           material: true,

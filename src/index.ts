@@ -14,6 +14,7 @@ import categoryRoutes from "./routes/categoryRoutes";
 import clientRoutes from "./routes/clientRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import orderItemRoutes from "./routes/orderItemRoutes";
+import invoiceTypeRoutes from "./routes/invoiceTypeRoutes";
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/order-items", orderItemRoutes);
+app.use("/api/invoice-types", invoiceTypeRoutes);
 
 // Lógica de WebSockets
 // io.on("connection", (socket) => {

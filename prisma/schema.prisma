@@ -187,7 +187,9 @@ model Order {
   total               Float        @default(0) 
   electronicPayment   Float        @default(0) // Transferencias / MP
   cashPayment         Float        @default(0) // Efectivo
-  invoiceType         String?      // Ej: "A", "B", "X"
+  
+  invoiceTypeId       Int?
+  invoiceType         InvoiceType? @relation(fields: [invoiceTypeId], references: [id])
 
   invoiceNumber       String?      // Ej: "X-0001-00015732"
   isPaid              Boolean   @default(false)
@@ -198,6 +200,12 @@ model Order {
   
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
+}
+
+model InvoiceType {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique // Ej: "Factura A", "Factura C", "Comprobante X"
+  orders Order[]
 }
 
 model OrderItem {
