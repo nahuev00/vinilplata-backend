@@ -3,7 +3,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
-import { Server } from "socket.io";
+
+// 👇 IMPORTAMOS EL INICIALIZADOR DE SOCKETS 👇
+import { initSocket } from "./config/socket";
 
 //----------- ROUTES ------------
 import userRoutes from "./routes/userRoutes";
@@ -23,12 +25,8 @@ const app = express();
 app.use(morgan("dev"));
 const server = http.createServer(app);
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: "*",
-//     methods: ["GET", "POST"],
-//   },
-// });
+// 👇 1. INICIALIZAMOS SOCKET.IO PASÁNDOLE EL SERVIDOR HTTP 👇
+initSocket(server);
 
 const corsOptions = {
   // Allow your specific Pinggy frontend URL
@@ -55,17 +53,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/order-items", orderItemRoutes);
 app.use("/api/invoice-types", invoiceTypeRoutes);
 
-// Lógica de WebSockets
-// io.on("connection", (socket) => {
-//   console.log(`Nueva conexión conectada: ${socket.id}`);
-
-//   socket.on("disconnect", () => {
-//     console.log(`Usuario desconectado: ${socket.id}`);
-//   });
-// });
-
 const PORT = process.env.PORT || 4000;
 
 server.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });

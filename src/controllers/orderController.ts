@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as orderService from "../services/orderService";
 import prisma from "../config/db";
+import { getIo } from "../config/socket"; // 👈 ASEGÚRATE DE IMPORTAR ESTO
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -79,6 +80,10 @@ export const updateOrderItem = async (req: Request, res: Response) => {
         status: status !== undefined ? status : undefined,
       },
     });
+
+    // 👇 ¡AQUÍ ESTÁ LA MAGIA QUE FALTABA! 👇
+    getIo().emit("ordersUpdated");
+
     res.json(updatedItem);
   } catch (error) {
     res.status(500).json({ error: "Error al actualizar el ítem" });

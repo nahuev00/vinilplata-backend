@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import { Prisma, ItemStatus } from "../generated/prisma/client";
+import { getIo } from "../config/socket"; // 👈 IMPORTAMOS EL SOCKET
 
 // Permite listar los ítems, ideal para la pantalla de cada máquina (filtrando por assignedToId)
 export const getOrderItemsService = async (
@@ -82,15 +83,21 @@ export const updateOrderItemService = async (
     }
   }
 
-  return await prisma.orderItem.update({
+  const updatedItem = await prisma.orderItem.update({
     where: { id },
     data: {
       ...data,
-      ...(areaM2 !== undefined ? { areaM2 } : {}), // Solo actualiza el área si se recalculó
+      ...(areaM2 !== undefined ? { areaM2 } : {}),
     },
     include: {
       assignedTo: { select: { name: true } },
       order: { select: { orderNumber: true } },
     },
   });
+
+  // 👇 ESTA ES LA LÍNEA QUE FALTA O NO SE ESTÁ EJECUTANDO 👇
+  console.log("📢 Emitiendo evento ordersUpdated a todos los clientes...");
+  getIo().emit("ordersUpdated");
+
+  return updatedItem;
 };
