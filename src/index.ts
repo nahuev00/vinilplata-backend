@@ -17,6 +17,7 @@ import clientRoutes from "./routes/clientRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import orderItemRoutes from "./routes/orderItemRoutes";
 import invoiceTypeRoutes from "./routes/invoiceTypeRoutes";
+import operatorRoutes from './routes/operatorRoutes'
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/order-items", orderItemRoutes);
 app.use("/api/invoice-types", invoiceTypeRoutes);
+app.use("/api/operators", operatorRoutes);
 
 const PORT = process.env.PORT || 4000;
 

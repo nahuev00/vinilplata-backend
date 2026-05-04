@@ -57,6 +57,8 @@ model User {
 
   isFinishingStation Boolean @default(false)
 
+  stationLogs        ItemLog[]
+
   //Materiales admitidos por cada USER{role:STATION}
   materials Material[]
 
@@ -241,7 +243,37 @@ model OrderItem {
   
   status              ItemStatus   @default(PREIMPRESION)
   proofApproved       Boolean      @default(false) // ¿Prueba aprobada?
+
+  logs                ItemLog[]
   
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
+}
+
+model Operator {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique // Ej: "Juan Perez", "Maria Gomez"
+  
+  logs      ItemLog[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Nueva Entidad: HISTORIAL DE TRABAJO
+model ItemLog {
+  id          Int        @id @default(autoincrement())
+  
+  orderItemId Int
+  orderItem   OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  
+  operatorId  Int?       // Quien presionó el botón (puede ser null si lo movió el Admin sin elegir operario)
+  operator    Operator?  @relation(fields: [operatorId], references: [id])
+
+  stationId   Int?
+  station     User?      @relation(fields: [stationId], references: [id])
+  
+  status      ItemStatus // A qué estado lo pasó (Ej: IMPRIMIENDO, TERMINACIONES)
+  
+  createdAt   DateTime   @default(now())
 }

@@ -234,6 +234,12 @@ export const getOrdersPaginatedService = async (
         items: {
           include: {
             assignedTo: { select: { id: true, name: true } },
+            logs: {
+              include:{
+                operator: true,
+                station: true
+              }
+            }
           },
         },
       },

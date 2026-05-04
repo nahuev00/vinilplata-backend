@@ -71,7 +71,7 @@ export const updateOrder = async (req: Request, res: Response) => {
 export const updateOrderItem = async (req: Request, res: Response) => {
   try {
     const { itemId } = req.params;
-    const { assignedToId, status } = req.body;
+    const { assignedToId, status, operatorId,stationId } = req.body;
 
     const updatedItem = await prisma.orderItem.update({
       where: { id: Number(itemId) },
@@ -81,7 +81,17 @@ export const updateOrderItem = async (req: Request, res: Response) => {
       },
     });
 
-    // 👇 ¡AQUÍ ESTÁ LA MAGIA QUE FALTABA! 👇
+    if (status && operatorId) {
+      await prisma.itemLog.create({
+        data: {
+          orderItemId: Number(itemId),
+          operatorId: Number(operatorId),
+          stationId: stationId ? Number(stationId) : null,
+          status: status, // Guardamos a qué estado pasó
+        },
+      });
+    }
+
     getIo().emit("ordersUpdated");
 
     res.json(updatedItem);
