@@ -13,11 +13,12 @@ export const getStations = async (_req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    // 1. Extraemos lo que manda el frontend
+    // 1. Extraemos lo que manda el frontend (AQUÍ AGREGAMOS 'role')
     const {
       name,
       username,
       password,
+      role, // 👈 ¡Extraemos el rol!
       materialIds,
       printSpeedPerHour,
       isFinishingStation,
@@ -30,7 +31,9 @@ export const createUser = async (req: Request, res: Response) => {
       password,
       printSpeedPerHour,
       isFinishingStation,
-      role: Role.STATION,
+      // 👇 Si viene un rol del frontend, lo usamos; si no, por defecto STATION
+      role: role ? (role as Role) : Role.STATION,
+
       // Usamos 'connect' para vincular los materiales existentes en la BD
       materials:
         materialIds && materialIds.length > 0
@@ -53,10 +56,12 @@ export const updateStation = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
+    // 1. Extraemos lo que manda el frontend (AQUÍ AGREGAMOS 'role')
     const {
       name,
       username,
       password,
+      role, // 👈 ¡Extraemos el rol!
       materialIds,
       printSpeedPerHour,
       isFinishingStation,
@@ -69,6 +74,9 @@ export const updateStation = async (req: Request, res: Response) => {
       password,
       printSpeedPerHour,
       isFinishingStation,
+      // 👇 Pasamos el rol para que se actualice
+      role: role ? (role as Role) : undefined,
+
       // Usamos 'set' para borrar la lista anterior y clavar la nueva directamente
       materials: materialIds
         ? {

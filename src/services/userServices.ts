@@ -21,12 +21,16 @@ export const getStationsService = async () => {
 };
 
 export const createUserService = async (data: Prisma.UserCreateInput) => {
+  // Verificamos qué llega realmente al servicio
+  console.log("Datos recibidos para crear usuario:", data);
+
   const newUSer = await prisma.user.create({
     data: {
       username: data.username,
       name: data.name,
       password: data.password || null,
-      role: data.role || Role.STATION,
+      // 👇 Aseguramos que tome el rol (Prisma a veces es estricto con los Enums)
+      role: data.role ? (data.role as Role) : Role.STATION,
       materials: data.materials,
       printSpeedPerHour: data.printSpeedPerHour,
       isFinishingStation: data.isFinishingStation,
@@ -35,7 +39,6 @@ export const createUserService = async (data: Prisma.UserCreateInput) => {
       materials: true,
     },
   });
-  console.log(data);
 
   const { password: _, ...safeUser } = newUSer;
   return safeUser;
@@ -45,14 +48,17 @@ export const updateUserService = async (
   id: number,
   data: Prisma.UserUpdateInput,
 ) => {
-  console.log(data);
+  console.log("Datos recibidos para actualizar usuario:", data);
+
   const updatedUser = await prisma.user.update({
     where: { id },
     data: {
       name: data.name,
       username: data.username,
+      // 👇 ¡FALTABA ESTA LÍNEA! Ahora sí actualizará el rol
+      role: data.role ? (data.role as Role) : undefined,
       ...(data.password ? { password: data.password } : {}),
-      materials: data.materials, // <-- Aquí insertaremos la relación con 'set'
+      materials: data.materials,
       printSpeedPerHour: data.printSpeedPerHour,
       isFinishingStation: data.isFinishingStation,
     },
