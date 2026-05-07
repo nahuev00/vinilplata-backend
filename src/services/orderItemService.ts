@@ -95,8 +95,6 @@ export const updateOrderItemService = async (
     },
   });
 
-  // 👇 ESTA ES LA LÍNEA QUE FALTA O NO SE ESTÁ EJECUTANDO 👇
-  console.log("📢 Emitiendo evento ordersUpdated a todos los clientes...");
   getIo().emit("ordersUpdated");
 
   return updatedItem;
