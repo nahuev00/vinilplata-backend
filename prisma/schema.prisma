@@ -23,11 +23,13 @@ enum ShippingType {
 
 // Estados de la Orden Completa
 enum OrderStatus {
-  PRESUPUESTADO   // Aún no confirmado
-  EN_PRODUCCION   // En producción
-  TERMINADO       // Listo para retiro o envío
-  ENTREGADO       // Entregado / Despachado
-  CANCELADO       // Cancelado
+  PRESUPUESTADO    // Aún no confirmado
+  EN_PRODUCCION    // En producción
+  EN_EMPAQUETADO   // Todos los ítems realizados, listo para empaque
+  EN_ENVIOS        // Empaquetado, listo para despacho
+  TERMINADO        // Listo para retiro o envío
+  ENTREGADO        // Entregado / Despachado
+  CANCELADO        // Cancelado
 }
 
 // Estados del Renglón (Para la pantalla de los maquinistas/estaciones)

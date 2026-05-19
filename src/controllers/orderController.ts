@@ -154,6 +154,27 @@ export const updateOrderItem = async (req: Request, res: Response) => {
 
     const updatedItem = results[results.length - 1];
 
+    // 6. Auto-transición: si todos los items de la orden están REALIZADO o EMPAQUETADO,
+    //    la orden pasa a EN_EMPAQUETADO automáticamente
+    if (status && updatedItem) {
+      const allItems = await prisma.orderItem.findMany({
+        where: { orderId: currentItem.orderId },
+        select: { status: true },
+      });
+
+      const allDone = allItems.every(
+        (item) =>
+          item.status === "REALIZADO" || item.status === "EMPAQUETADO",
+      );
+
+      if (allDone) {
+        await prisma.order.update({
+          where: { id: currentItem.orderId },
+          data: { status: "EN_EMPAQUETADO" },
+        });
+      }
+    }
+
     getIo().emit("ordersUpdated");
 
     res.json(updatedItem);

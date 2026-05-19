@@ -17,7 +17,7 @@ import clientRoutes from "./routes/clientRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import orderItemRoutes from "./routes/orderItemRoutes";
 import invoiceTypeRoutes from "./routes/invoiceTypeRoutes";
-import operatorRoutes from './routes/operatorRoutes'
+import operatorRoutes from "./routes/operatorRoutes";
 
 dotenv.config();
 
@@ -30,8 +30,6 @@ const server = http.createServer(app);
 initSocket(server);
 
 const corsOptions = {
-  // Allow your specific Pinggy frontend URL
-  origin: "https://rjhht-181-116-45-158.a.free.pinggy.link",
   optionsSuccessStatus: 200,
 };
 
